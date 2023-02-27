@@ -2,6 +2,24 @@ import requests
 import scrapy 
 import json
 
+def clean_string(string):
+    
+        # Replace special characters by their no special characters equivalent
+        string = string.replace('é', 'e')
+        string = string.replace('è', 'e')
+        string = string.replace('ê', 'e')
+        string = string.replace('à', 'a')
+        string = string.replace('â', 'a')
+        string = string.replace('ô', 'o')
+        string = string.replace('î', 'i')
+        string = string.replace('ï', 'i')
+        string = string.replace('ç', 'c')
+        string = string.replace('ù', 'u')
+        string = string.replace('û', 'u')
+        
+        return string
+
+
 # Add a header to the request
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0'}
 
@@ -52,19 +70,9 @@ while run_scrap == True:
             # print the href attribute and the text of the a elements
             for i in range(len(a)):
 
-                # Replace special characters by their no special characters equivalent
-                a[i] = a[i].replace('é', 'e')
-                a[i] = a[i].replace('è', 'e')
-                a[i] = a[i].replace('ê', 'e')
-                a[i] = a[i].replace('à', 'a')
-                a[i] = a[i].replace('â', 'a')
-                a[i] = a[i].replace('ô', 'o')
-                a[i] = a[i].replace('î', 'i')
-                a[i] = a[i].replace('ï', 'i')
-                a[i] = a[i].replace('ç', 'c')
-                a[i] = a[i].replace('ù', 'u')
-                a[i] = a[i].replace('û', 'u')
-                
+                # Clean the string
+                a[i] = clean_string(a[i])
+          
                 # Delete the \n character
                 a[i] = a[i].replace('\n', '')
 
@@ -78,6 +86,46 @@ while run_scrap == True:
             # Update the page number
             page += 1
 
-# transform the list to json
-jobs = json.dumps(jobs, indent=4)
-print(jobs)
+for job in jobs:
+
+    # page url
+    url = "https://www.hellowork.com" + job["url"]
+    
+    # Get the page
+    response = requests.get(url, headers=headers)
+    status_code = response.status_code
+
+    # If the status code is 200
+    if status_code == 200 :   
+        source = response.text
+
+        if source:
+
+            # Create a selector
+            selector = scrapy.Selector(text=source)
+
+            # Get section with the attribute data-job-description
+            section = selector.css('section[data-job-description]')
+
+            # Get text of attribute "company" of the attribute "data-job-description"
+            company = section.css('section[data-job-description]::attr(company)').get()
+
+            # Get the text of all p elements inside the section
+            content = section.css('p::text').getall()
+
+            # Clean the string
+            print(company)
+
+            # add the company name to the json object
+            job["company"] = company
+
+            for element in content:
+                element = clean_string(element)
+
+            # Concatenate all the text of the p elements to a string separated by a space
+            content = ' '.join(content)
+
+            # add the content to the json object
+            job["content"] = content
+
+print(json.dumps(jobs, indent=4))
