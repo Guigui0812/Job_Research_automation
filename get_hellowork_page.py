@@ -1,6 +1,8 @@
 import requests
 import scrapy 
 import json
+from datetime import datetime
+import re
 
 # Add a header to the request
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0'}
@@ -24,9 +26,48 @@ def clean_string(string):
     string = string.replace('ç', 'c')
     string = string.replace('ù', 'u')
     string = string.replace('û', 'u')
+    string = string.replace('ä', 'a')
+    string = string.replace('\n', '')
     
     return string
 
+# Function to add the job on the website to the jobs list
+def add_job(a, href, span):
+
+    # print the href attribute and the text of the a elements
+    for i in range(len(a)):
+
+        # Get the date
+        date = span[i].css('::text').get()
+
+        # clean the string
+        date = clean_string(date)
+
+        # Remove the white spaces at the beginning and at the end of the string
+        date = date.strip()
+        
+        # if date match the pattern dd/mm/yyyy
+        if re.match(r'\d{2}/\d{2}/\d{4}', date):
+        
+            # convert the date to a datetime object
+            date = datetime.strptime(date, '%d/%m/%Y')
+
+            # Check if the date is in the last 7 days
+            if (datetime.now() - date).days > 7:
+
+                # Clean the string
+                a[i] = clean_string(a[i])
+        
+                # Delete the \n character
+                a[i] = a[i].replace('\n', '')
+
+                # Delete white spaces at the beginning and at the end of the string
+                a[i] = a[i].strip()
+
+                # Create a json object with the title and the url
+                job = { "title": a[i], "date": str(date) , "url": href[i] }
+                jobs.append(job)
+    
 # Function to get the research result
 def get_research_result(url_string):
 
@@ -36,8 +77,6 @@ def get_research_result(url_string):
     # Get the page while the status code is 200
     while run_scrap == True and page < 3:
             
-        print(page)
-
         url = url_string + str(page)
 
         # Get the page
@@ -73,21 +112,11 @@ def get_research_result(url_string):
                 # get href attribute of the a elements inside the h3
                 href = h3.css('a::attr(href)').getall()
 
-                # print the href attribute and the text of the a elements
-                for i in range(len(a)):
+                # Get all span with the attribute data-cy="publishDate"
+                span = li.css('span[data-cy="publishDate"]')
 
-                    # Clean the string
-                    a[i] = clean_string(a[i])
-            
-                    # Delete the \n character
-                    a[i] = a[i].replace('\n', '')
-
-                    # Delete white spaces at the beginning and at the end of the string
-                    a[i] = a[i].strip()
-
-                    # Create a json object with the title and the url
-                    job = { "title": a[i], "url": href[i] }
-                    jobs.append(job)
+                # Add the job to the jobs list
+                add_job(a, href, span)
 
                 # Update the page number
                 page += 1
@@ -128,9 +157,6 @@ def get_job_description():
                 # Get the text of all p elements inside the section
                 content = section.css('p::text').getall()
 
-                # Clean the string
-                print(company)
-
                 # add the company name to the json object
                 job["company"] = company
 
@@ -149,6 +175,7 @@ def get_job_description():
                 # add the content to the json object
                 job["content"] = content
 
+# Function to get devops job from hellowork
 def get_devops_job():
 
     # page url
@@ -160,6 +187,7 @@ def get_devops_job():
     # Get the job description
     get_job_description()
 
+# Function to get software engineer job from hellowork
 def get_dev_job():
 
     # page url
@@ -176,6 +204,9 @@ get_devops_job()
 
 # Get software engineer job from hellowork 
 get_dev_job()
+
+# Count the number of elements in the json object
+print(len(jobs))
 
 # print the json object
 print(json.dumps(jobs, indent=4))
