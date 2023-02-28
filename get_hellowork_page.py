@@ -1,13 +1,13 @@
 import requests
 import scrapy 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 
 # Add a header to the request
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0'}
 
-# Variables
+# Global variables
 status_code = 0
 jobs = []
 
@@ -32,9 +32,9 @@ def clean_string(string):
     return string
 
 # Function to add the job on the website to the jobs list
-def add_job(a, href, span):
+def scrap_basic_job_data(a, href, span):
 
-    # print the href attribute and the text of the a elements
+    # Loop through the list of job title
     for i in range(len(a)):
 
         # Get the date
@@ -52,8 +52,8 @@ def add_job(a, href, span):
             # convert the date to a datetime object
             date = datetime.strptime(date, '%d/%m/%Y')
 
-            # Check if the date is in the last 7 days
-            if (datetime.now() - date).days > 7:
+            # Check if the date is between today and 1 month ago
+            if (date >= datetime.today() - timedelta(days=30)) and (date <= datetime.today()):
 
                 # Clean the string
                 a[i] = clean_string(a[i])
@@ -69,60 +69,54 @@ def add_job(a, href, span):
                 jobs.append(job)
     
 # Function to get the research result
-def get_research_result(url_string):
+def scrap_research_result(url):
 
-    run_scrap = True
-    page = 1
-    
-    # Get the page while the status code is 200
-    while run_scrap == True and page < 3:
-            
-        url = url_string + str(page)
+    # Get the page
+    response = requests.get(url, headers=headers)
+    status_code = response.status_code
 
-        # Get the page
-        response = requests.get(url, headers=headers)
-        status_code = response.status_code
+    # If the status code is 200
+    if status_code == 200 :   
+        source = response.text
 
-        # If the status code is 200
-        if status_code == 200 :   
-            source = response.text
+        if source:
 
-            if source:
+            # Create a selector
+            selector = scrapy.Selector(text=source)
 
-                # Create a selector
-                selector = scrapy.Selector(text=source)
+            # Get the h2 element with the id "noResult" and get the text, and print it
+            no_result = selector.css('h2#noResult::text').get()
+            if no_result :
+                return False
 
-                # Get the h2 element with the id "noResult" and get the text, and print it
-                no_result = selector.css('h2#noResult::text').get()
-                if no_result :
-                    run_scrap = False
+            # Get the ul with the class "crushed"
+            ul = selector.css('ul.crushed')
 
-                # Get the ul with the class "crushed"
-                ul = selector.css('ul.crushed')
+            # Get all the li elements inside the ul
+            li = ul.css('li')
 
-                # Get all the li elements inside the ul
-                li = ul.css('li')
+            # get all h3 elements inside the li with the class "!tw-mb-0"
+            h3 = li.css('h3.\!tw-mb-0')
 
-                # get all h3 elements inside the li with the class "!tw-mb-0"
-                h3 = li.css('h3.\!tw-mb-0')
+            # get all the a elements inside the h3
+            a = h3.css('a::text').getall()
 
-                # get all the a elements inside the h3
-                a = h3.css('a::text').getall()
+            # get href attribute of the a elements inside the h3
+            href = h3.css('a::attr(href)').getall()
 
-                # get href attribute of the a elements inside the h3
-                href = h3.css('a::attr(href)').getall()
+            # Get all span with the attribute data-cy="publishDate"
+            span = li.css('span[data-cy="publishDate"]')
 
-                # Get all span with the attribute data-cy="publishDate"
-                span = li.css('span[data-cy="publishDate"]')
+            # Add the job to the jobs list
+            scrap_basic_job_data(a, href, span)
 
-                # Add the job to the jobs list
-                add_job(a, href, span)
+            return True
 
-                # Update the page number
-                page += 1
+    else:
+        return False
 
 # Function to get the job title
-def get_job_description():
+def scrap_job_description():
 
     for job in jobs:
 
@@ -154,6 +148,12 @@ def get_job_description():
                 # Get the company name
                 company = json_object["company"]
 
+                # Get idoffer from the json object
+                idoffer = json_object["idoffer"]
+
+                # Add the idoffer to the json object
+                job["idoffer"] = idoffer
+
                 # Get the text of all p elements inside the section
                 content = section.css('p::text').getall()
 
@@ -176,37 +176,36 @@ def get_job_description():
                 job["content"] = content
 
 # Function to get devops job from hellowork
-def get_devops_job():
+def scrap_job_research(url):
 
-    # page url
-    url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=DevOps&k_autocomplete=http%3A%2F%2Fwww.rj.com%2FCommun%2FPost%2FDevops&l=%C3%8Ele-de-France&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&c=Alternance&ray=50&p="
+    # Variables
+    run_scrap = True
+    page = 1
 
-    # Get the research result
-    get_research_result(url)
+    while run_scrap:
 
-    # Get the job description
-    get_job_description()
+        # Get the research result
+        if (scrap_research_result(url + str(page)) == True):
+            page += 1
+        else:
+            run_scrap = False
 
-# Function to get software engineer job from hellowork
-def get_dev_job():
-
-    # page url
-    url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=D%C3%A9veloppeur+informatique&k_autocomplete=http%3A%2F%2Fwww.rj.com%2FCommun%2FPost%2FDeveloppeur&l=%C3%8Ele-de-France&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=50&c=Alternance&d=all&p="
-
-    # Get the research result
-    get_research_result(url)
+            
 
     # Get the job description
-    get_job_description()
+    scrap_job_description()
 
-# Get devops engineer job from hellowork
-get_devops_job()
+def get_jobs():
+    
+    #url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=D%C3%A9veloppeur+informatique&k_autocomplete=http%3A%2F%2Fwww.rj.com%2FCommun%2FPost%2FDeveloppeur&l=%C3%8Ele-de-France&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=50&c=Alternance&d=all&p="
 
-# Get software engineer job from hellowork 
-get_dev_job()
 
-# Count the number of elements in the json object
-print(len(jobs))
+    # Get devops engineer job from hellowork
+    url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=Devops&k_autocomplete=http%3A%2F%2Fwww.rj.com%2FCommun%2FPost%2FDevops&l=%C3%8Ele-de-France&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=50&c=Alternance&d=all&p="
+    scrap_job_research(url)
 
-# print the json object
-print(json.dumps(jobs, indent=4))
+    # print the json object
+    print(json.dumps(jobs, indent=4))
+
+get_jobs()
+
