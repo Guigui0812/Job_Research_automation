@@ -1,16 +1,14 @@
-// Create user and database
+// Create a new database
+db = db.getSiblingDB('job_db');
+
+// Create a new collection
+db.createCollection('hellowork_jobs');
+
+// Create a user to access the database
 db.createUser({
-    user: 'job_seeker',
-    pwd: 'password',
+    user: "myuser",
+    pwd: "mypassword",
     roles: [
-        {
-            role: 'readWrite',
-            db: 'job_db',
-        },
-    ],
+        { role: "readWrite", db: "job_db" }
+    ]
 });
-
-// Create collections
-db = new Mongo().getDB("job_db");
-
-db.createCollection('hellowork_jobs', { capped: false });

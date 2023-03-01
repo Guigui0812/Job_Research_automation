@@ -96,7 +96,13 @@ def scrap_research_result(url):
             scrap_job_description()
 
             # Check if the job is already in the database
-            # If not, add it to the database
+            for job in jobs:
+
+                if db_connection.exists(job["idoffer"]):
+                    jobs.remove(job)
+
+            # Insert the jobs in the database
+            db_connection.insert_many(jobs)
 
             return True
 
@@ -195,8 +201,5 @@ def get_jobs(job, location, contract, distance):
 
     # Get devops engineer job from hellowork
     scrap_job_research(url)
-
-    # print the json object
-    print(json.dumps(jobs, indent=4))
 
 get_jobs("devops", "Paris", "Alternance", 50)
