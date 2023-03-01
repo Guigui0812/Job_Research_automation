@@ -3,7 +3,7 @@ import scrapy
 import json
 from datetime import datetime, timedelta
 import re
-
+import utils
 # Add a header to the request
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0'}
 
@@ -11,25 +11,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Ge
 status_code = 0
 jobs = []
 
-# Function to clean the string
-def clean_string(string):
-    
-    # Replace special characters by their no special characters equivalent
-    string = string.replace('é', 'e')
-    string = string.replace('è', 'e')
-    string = string.replace('ê', 'e')
-    string = string.replace('à', 'a')
-    string = string.replace('â', 'a')
-    string = string.replace('ô', 'o')
-    string = string.replace('î', 'i')
-    string = string.replace('ï', 'i')
-    string = string.replace('ç', 'c')
-    string = string.replace('ù', 'u')
-    string = string.replace('û', 'u')
-    string = string.replace('ä', 'a')
-    string = string.replace('\n', '')
-    
-    return string
+db_connection = utils.MongoDbInterface("localhost", 27017, "job_db", "hellowork_jobs")
 
 # Function to add the job on the website to the jobs list
 def scrap_basic_job_data(a, href, span):
@@ -41,7 +23,7 @@ def scrap_basic_job_data(a, href, span):
         date = span[i].css('::text').get()
 
         # clean the string
-        date = clean_string(date)
+        date = utils.DataCleaner.clean_data(date)
 
         # Remove the white spaces at the beginning and at the end of the string
         date = date.strip()
@@ -56,7 +38,7 @@ def scrap_basic_job_data(a, href, span):
             if (date >= datetime.today() - timedelta(days=30)) and (date <= datetime.today()):
 
                 # Clean the string
-                a[i] = clean_string(a[i])
+                a[i] = utils.DataCleaner.clean_data(a[i])
         
                 # Delete the \n character
                 a[i] = a[i].replace('\n', '')
@@ -109,6 +91,12 @@ def scrap_research_result(url):
 
             # Add the job to the jobs list
             scrap_basic_job_data(a, href, span)
+
+            # Get the job description
+            scrap_job_description()
+
+            # Check if the job is already in the database
+            # If not, add it to the database
 
             return True
 
@@ -164,7 +152,7 @@ def scrap_job_description():
                 content = ' '.join(content)
 
                 # Clean the string
-                content = clean_string(content)
+                content = utils.DataCleaner.clean_data(content)
 
                 # Delete the \n character
                 content = content.replace('\n', '')
@@ -190,22 +178,25 @@ def scrap_job_research(url):
         else:
             run_scrap = False
 
-            
-
-    # Get the job description
-    scrap_job_description()
-
-def get_jobs():
+# Function to get the job from hellowork
+def get_jobs(job, location, contract, distance):
     
-    #url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=D%C3%A9veloppeur+informatique&k_autocomplete=http%3A%2F%2Fwww.rj.com%2FCommun%2FPost%2FDeveloppeur&l=%C3%8Ele-de-France&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=50&c=Alternance&d=all&p="
+    url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=" + job + "&l=" + location + "&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=" + str(distance) + "&d=all&c=" + contract + "&p="
 
+    print(url)
+
+    # replace spaces with +
+    url = url.replace(' ', '+')
+    
+    # The first character of strings is always a majuscule
+    job = job.capitalize()
+    contract = contract.capitalize()
+    location = location.capitalize()
 
     # Get devops engineer job from hellowork
-    url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=Devops&k_autocomplete=http%3A%2F%2Fwww.rj.com%2FCommun%2FPost%2FDevops&l=%C3%8Ele-de-France&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=50&c=Alternance&d=all&p="
     scrap_job_research(url)
 
     # print the json object
     print(json.dumps(jobs, indent=4))
 
-get_jobs()
-
+get_jobs("devops", "Paris", "Alternance", 50)
