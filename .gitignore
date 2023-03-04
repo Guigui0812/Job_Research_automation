@@ -130,6 +130,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+job_research_automation_venv/
 
 # Spyder project settings
 .spyderproject
@@ -163,7 +164,7 @@ cython_debug/
 #.idea/
 
 # Ignore all the files in the mongo data directory
-data/mongodb_data/
+database/mongodb_data/
 
 # ignore .vscode folder
 .vscode/

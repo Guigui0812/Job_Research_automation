@@ -6,8 +6,8 @@ db.createCollection('hellowork_jobs');
 
 // Create a user to access the database
 db.createUser({
-    user: "myuser",
-    pwd: "mypassword",
+    user: "job_seeker",
+    pwd: "getajob",
     roles: [
         { role: "readWrite", db: "job_db" }
     ]

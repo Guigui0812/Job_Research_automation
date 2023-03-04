@@ -1,4 +1,6 @@
 import pymongo
+import dotenv
+import os
 
 # Class to interface with MongoDB
 class MongoDbInterface:
@@ -6,8 +8,18 @@ class MongoDbInterface:
     # Constructor
     def __init__(self, host, port, db_name, collection_name):
             
-            # Get the client
-            self.client = pymongo.MongoClient("mongodb://myuser:mypassword@localhost:27017/job_db?authSource=job_db")
+            # Load environment variables
+            dotenv.load_dotenv()
+
+            # Get the user and password
+            myuser = os.getenv("MONGO_USER")
+            mypassword = os.getenv("MONGO_PASSWORD")
+
+            connection_string = "mongodb://job_seeker:getajob@localhost:27017/job_db?authSource=job_db"
+            print(connection_string)
+
+            # Create a MongoClient to the running mongod instance
+            self.client = pymongo.MongoClient(connection_string)
     
             # Get the database
             self.db = self.client[db_name]
