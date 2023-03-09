@@ -189,8 +189,6 @@ def get_jobs(job, location, contract, distance):
     
     url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=" + job + "&l=" + location + "&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=" + str(distance) + "&d=all&c=" + contract + "&p="
 
-    print(url)
-
     # replace spaces with +
     url = url.replace(' ', '+')
     

@@ -4,7 +4,7 @@ db_connection = DatabaseConnection()
 
 # Model for a job document
 class Job:
-    def __init__(self, job_id, job_title, job_description, job_location, job_salary, job_type, job_category, job_posted_date, job_closing_date, job_company):
+    def __init__(self, job_id, job_title, job_description, job_location, job_posted_date, job_company):
         self.id = job_id
         self.title = job_title
         self.description = job_description
@@ -19,4 +19,3 @@ class Job:
     @staticmethod
     def find_all():
         return db_connection.find_all()
-

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All jobs</title>
+</head>
+<body>
+    <h1>All jobs scrapped</h1>
+    <hr>
+    <div class="content">
+    
+        <div class="jobs">
+
+            {% for job in jobs %}
+                <p>{{ job["title"] }}</p>
+            {% endfor %}
+            
+        </div>
+
+    </div>
+</body>
+</html>
