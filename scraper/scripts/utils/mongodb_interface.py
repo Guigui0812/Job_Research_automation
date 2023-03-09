@@ -1,5 +1,4 @@
 import pymongo
-import dotenv
 import os
 
 # Class to interface with MongoDB
@@ -8,9 +7,6 @@ class MongoDbInterface:
     # Constructor
     def __init__(self, host, port, db_name, collection_name):
             
-            # Load environment variables
-            dotenv.load_dotenv()
-
             # Get the user and password
             myuser = os.getenv("MONGO_USER")
             mypassword = os.getenv("MONGO_PASSWORD")

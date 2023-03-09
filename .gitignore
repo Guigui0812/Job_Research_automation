@@ -130,7 +130,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-job_research_automation_venv/
+env*
 
 # Spyder project settings
 .spyderproject
