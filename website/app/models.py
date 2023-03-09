@@ -12,9 +12,11 @@ class Job:
         self.date = job_posted_date
         self.company = job_company
 
+    # Find all job where is title is contained in the job document
     @staticmethod
     def find_by_title(title):
-        return db_connection.find_one({"title": title})
+        query = {"title": {"$regex": title, "$options": "i"}}
+        return db_connection.find(query)
 
     @staticmethod
     def find_all():

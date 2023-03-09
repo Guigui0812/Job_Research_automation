@@ -6,14 +6,14 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Hello World'
+    return render_template('index.html')
 
-@app.route('/jobs', methods=['GET'])
+@app.route('/jobs', methods=['POST'])
 def get_jobs():
-    cursor_job = Job.find_all()
-    list_jobs = list(cursor_job)
 
-    print(list_jobs[0]["title"])
+    title = request.form['title']
+    cursor_job = Job.find_by_title(title)
+    list_jobs = list(cursor_job)
 
     if list_jobs:
         return render_template('jobs.html', jobs=list_jobs)

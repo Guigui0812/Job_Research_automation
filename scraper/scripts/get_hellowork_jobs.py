@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timedelta
 import re
 import utils
+
 # Add a header to the request
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0'}
 
@@ -187,15 +188,15 @@ def scrap_job_research(url):
 # Function to get the job from hellowork
 def get_jobs(job, location, contract, distance):
     
-    url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=" + job + "&l=" + location + "&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=" + str(distance) + "&d=all&c=" + contract + "&p="
-
-    # replace spaces with +
-    url = url.replace(' ', '+')
-    
     # The first character of strings is always a majuscule
     job = job.capitalize()
     contract = contract.capitalize()
     location = location.capitalize()
+
+    url = "https://www.hellowork.com/fr-fr/emploi/recherche.html?k=" + job + "&l=" + location + "&l_autocomplete=http%3A%2F%2Fwww.rj.com%2Fcommun%2Flocalite%2Fregion%2F11&ray=" + str(distance) + "&d=all&c=" + contract + "&p="
+
+    # replace spaces with +
+    #url = url.replace(' ', '+')
 
     # Get devops engineer job from hellowork
     scrap_job_research(url)

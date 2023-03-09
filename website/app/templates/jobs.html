@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>All jobs</title>
@@ -13,6 +13,14 @@
 
             {% for job in jobs %}
                 <p>{{ job["title"] }}</p>
+                <br>
+                <p>{{ job["company"] }}</p>
+                <br>
+                <p>{{ job["date"] }}</p>
+                <br>
+                <p>{{ job["content"] }}</p>
+                <br>
+                <p>{{ job["url"] }}</p>
             {% endfor %}
             
         </div>
