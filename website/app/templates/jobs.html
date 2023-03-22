@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>All jobs</title>
+    <link rel="stylesheet" href="../static/output.css">
 </head>
 <body>
-    <h1>All jobs scrapped</h1>
-    <hr>
-    <div class="content">
-    
-        <div class="jobs">
-
+    <div class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-8">
+          <h2 class="text-3xl font-bold mb-8 text-center">Liste des jobs correspondants :</h2>
+          <hr class="border-gray-600 mb-8">
+          <div class="jobs">
             {% for job in jobs %}
-                <p>{{ job["title"] }}</p>
-                <br>
-                <p>{{ job["company"] }}</p>
-                <br>
-                <p>{{ job["date"] }}</p>
-                <br>
-                <p>{{ job["content"] }}</p>
-                <br>
-                <p>{{ job["url"] }}</p>
+              <div class="bg-gray-800 rounded-lg mb-4 p-4">
+                <h3 class="text-xl font-bold">{{ job["title"] }}</h3>
+                <p class="text-gray-400">{{ job["company"] }} - {{ job["date"] }}</p>
+                <p class="mt-4">{{ job["description"] }}</p>
+                <a class="text-blue-500 underline mt-4" href="{{ job['url'] }}">Voir le job</a>
+              </div>
             {% endfor %}
-            
+          </div>
         </div>
-
-    </div>
+    </div>      
 </body>
 </html>
