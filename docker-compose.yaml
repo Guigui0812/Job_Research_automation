@@ -1,15 +1,15 @@
 version: '3.1'
 
 services:
-  mongodb:
+  database:
     image: mongo
-    container_name: mongodb
+    container_name: database
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     ports:
       - 27017:27017
     volumes:
-      - ./data/mongodb_data:/data/db
-      - ./data/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+      - ./database/mongodb_data:/data/db
+      - ./database/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
     restart: unless-stopped
