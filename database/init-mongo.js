@@ -2,7 +2,7 @@
 db = db.getSiblingDB('job_db');
 
 // Create a new collection
-db.createCollection('hellowork_jobs');
+db.createCollection('indeed_jobs');
 
 // Create a user to access the database
 db.createUser({
