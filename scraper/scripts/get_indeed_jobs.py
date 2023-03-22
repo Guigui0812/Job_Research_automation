@@ -59,7 +59,7 @@ def get_indeed_jobs(titre, lieu, type_contrat):
     lieu = lieu.capitalize()
     page = 0
     run_scrap = True
-    url = "https://fr.indeed.com/emplois?q=" + titre + "&l=" + lieu + "&sc=0kf%3Ajt%28" + type_contrat + "%29%3B&start=" + str(page) + "&ppvjk=86859d0572ed98b7"
+    url = "https://fr.indeed.com/emplois?q=" + titre + "&l=" + lieu + "&sc=0kf%3Ajt%28" + type_contrat + "%29%3B&start=" + str(page)
     
     # replace spaces with +
     url = url.replace(' ', '+')
