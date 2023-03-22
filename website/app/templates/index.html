@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Job automation</title>
+    <link rel="stylesheet" href="../static/output.css">
+</head>
+<body class="bg-gray-900 text-white">
+
+    <header class="py-6 px-8">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold">Job Research App</h1>
+        </div>          
+    </header>
+
+    <main class="container mx-auto px-8 py-12">
+
+        <div class ="container mx-auto text-center">
+      
+            <div class="bg-gray-900 text-white py-12">
+                <div class="container mx-auto px-8">
+                  <h2 class="text-3xl font-bold mb-8 text-center">Formulaire de recherche</h2>
+                  <form class="max-w-md mx-auto" method="post" action="/jobs">
+                    <div class="mb-4">
+                      <label class="block font-bold mb-2" for="title">Titre du job</label>
+                      <input class="appearance-none block w-full bg-gray-800 text-white border border-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-gray-700" type="text" name="title" placeholder="Titre du job">
+                    </div>
+                    <div class="mb-4">
+                      <label class="block font-bold mb-2" for="company">Entreprise</label>
+                      <input class="appearance-none block w-full bg-gray-800 text-white border border-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-gray-700" type="text" name="company" placeholder="Entreprise">
+                    </div>
+                    <div class="mb-6">
+                      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Valider</button>
+                    </div>
+                  </form>
+                </div>
+            </div>
+              
+        </div>
+    </main>
+
+    <footer class="py-6 px-8 bg-gray-800">
+        <p class="text-center text-gray-500">&copy; Work in progress !!! </p>
+    </footer>
+
+</body>
+</html>
