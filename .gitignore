@@ -168,3 +168,15 @@ database/mongodb_data/
 
 # ignore .vscode folder
 .vscode/
+
+# Node.js / NPM
+node_modules/
+package-lock.json
+
+# Tailwind CSS
+dist/
+.cache/
+
+# Autres fichiers
+*.DS_Store
+*.log
