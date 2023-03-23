@@ -3,11 +3,12 @@ from selenium.webdriver.common.by import By
 import time
 import utils
 import json
+import datetime
 
 # Create a class to scrap the research result from indeed
 class IndeedJobsScraper():
 
-    def __init__(self, titre, lieu, type_contrat, limit):
+    def __init__(self, titre, lieu, type_contrat, limit, job_max_publish_date=25):
         
         self.titre = titre.capitalize()
         self.lieu = lieu.capitalize()
@@ -18,6 +19,7 @@ class IndeedJobsScraper():
         self.url = "https://fr.indeed.com/emplois?q=" + titre + "&l=" + lieu + "&sc=0kf%3Ajt%28" + type_contrat + "%29%3B&start=" + str(self.page)
         self.url = self.url.replace(' ', '+')
         self.jobs_list = []
+        self.job_max_publish_date = job_max_publish_date
 
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -95,12 +97,6 @@ class IndeedJobsScraper():
 
             self.jobs_list.append(job)
 
-        # get span that contains the job publication date
-        elements = self.driver.find_elements(By.CSS_SELECTOR, "span.date")
-        
-        for element in elements:
-            self.jobs_list[elements.index(element)]["date"] = element.text
-
         # get span that contains the company name
         elements = self.driver.find_elements(By.CSS_SELECTOR, "span.companyName")
 
@@ -108,6 +104,41 @@ class IndeedJobsScraper():
             self.jobs_list[elements.index(element)]["company"] = element.text
 
         cpt = 1
+
+        # get span that contains the job publication date
+        elements = self.driver.find_elements(By.CSS_SELECTOR, "span.date")
+        
+        for element in elements:
+             
+            nb_jours = element.text.split(" ")[5]
+
+            # Check if the job is published today or recently according to the number of days in the string
+            # If the job is published today or recently, we get the current date
+            # If the job is older than 30 days, we delete it from the list
+
+            if nb_jours.isdigit():
+                nb_jours = int(nb_jours)
+                today = datetime.datetime.today()
+                nb_jours = today - datetime.timedelta(days=nb_jours)
+                nb_jours = nb_jours.strftime("%d/%m/%Y")
+                self.jobs_list[elements.index(element)]["date"] = nb_jours
+
+            elif element.text == "Aujourd'hui" or element.text == "Publié à l'instant":
+
+                today = datetime.datetime.today()
+                nb_jours = today.strftime("%d/%m/%Y")
+                self.jobs_list[elements.index(element)]["date"] = nb_jours
+
+            else: 
+                # The job is older than 30 days
+                self.jobs_list[elements.index(element)]["date"] = "Older than 30 days"
+
+        # Delete the jobs that are older than the limit date
+        for job in self.jobs_list:
+            if job["date"] == "Older than 30 days":
+                self.jobs_list.remove(job)
+            elif job["date"] > self.job_max_publish_date:
+                self.jobs_list.remove(job)
 
         # get the job details
         for job in self.jobs_list:
