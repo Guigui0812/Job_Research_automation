@@ -1,4 +1,5 @@
-import re
+from datetime import datetime, timedelta
+import utils
 
 class DataCleaner:
 
@@ -27,3 +28,13 @@ class DataCleaner:
         data = data.replace('\n', '')
 
         return data
+    
+    @staticmethod
+    def delete_old_jobs():
+        
+        # Get the current date
+        today = datetime.today()
+        db_connection = utils.MongoDbInterface("localhost", 27017, "job_db", "hellowork_jobs")
+
+        # Delete all the jobs that are older than 1 month
+        db_connection.delete_many({"date": {"$lt": today - timedelta(days=30)}})

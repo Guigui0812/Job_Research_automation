@@ -1,5 +1,6 @@
 import pymongo
 import os
+from dotenv import load_dotenv
 
 # Class to interface with MongoDB
 class MongoDbInterface:
@@ -7,11 +8,15 @@ class MongoDbInterface:
     # Constructor
     def __init__(self, host, port, db_name, collection_name):
             
+            dotenv_path = os.path.join(os.path.dirname(__file__), '../../../.env')
+            print(dotenv_path)
+            load_dotenv(dotenv_path)
+
             # Get the user and password
             myuser = os.getenv("MONGO_USER")
             mypassword = os.getenv("MONGO_PASSWORD")
 
-            connection_string = "mongodb://job_seeker:getajob@localhost:27017/job_db?authSource=job_db"
+            connection_string = f"mongodb://{myuser}:{mypassword}@localhost:27017/job_db?authSource=job_db"
             print(connection_string)
 
             # Create a MongoClient to the running mongod instance
@@ -37,3 +42,7 @@ class MongoDbInterface:
             return True
         else:
             return False
+        
+    # Delete all documents from the collection that match the query
+    def delete_many(self, query):
+        self.collection.delete_many(query)
