@@ -16,7 +16,10 @@
                 <h3 class="text-xl font-bold">{{ job["title"] }}</h3>
                 <p class="text-gray-400">{{ job["company"] }} - {{ job["date"] }}</p>
                 <p class="mt-4">{{ job["description"] }}</p>
-                <a class="text-blue-500 underline mt-4" href="{{ job['url'] }}">Voir le job</a>
+                <a href="{{ job['url'] }}"
+                  class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+                  Voir le job
+                </a>
               </div>
             {% endfor %}
           </div>
